@@ -1,16 +1,16 @@
-# Loan Default Risk Dashboard
+# Loan Default Risk Analysis
 
 This is a credit risk project built on the Lending Club loan data from Kaggle. I wanted to answer two questions a credit team would care about. Which kinds of borrowers default the most? And which applications should a person check by hand before a loan is approved?
 
 I used MySQL to clean and analyse the data and to build a risk score, and Power BI to put it all into a four page dashboard.
 
-![Overview page](Images/01_Overview.png)
+![Overview page](images/01_overview.png)
 
-## The question
+## Business Question
 
 Which customer segments have the highest loan default probability, and which applications should the credit team manually review?
 
-## The data
+## Dataset
 
 The data is the Lending Club accepted loans file from Kaggle, covering 2007 to 2018: https://www.kaggle.com/datasets/wordsforthewise/lending-club
 
@@ -18,7 +18,19 @@ I kept only loans that had a final result, meaning they ended as Fully Paid, Cha
 
 When I say a loan defaulted, I mean it ended as Charged Off or Default. Charged Off means the lender gave up on getting the money back.
 
-## What I found
+## Project Workflow
+
+The project runs from the raw file all the way to the dashboard. The SQL file follows these steps in this order and has a check after each one.
+
+1. **Load the data.** I loaded the filtered file into a raw staging table in MySQL exactly as it came. Then I built a clean table with proper data types and a few new columns: a 0 or 1 default flag, employment length as a number, the issue year and an average FICO score.
+2. **Check the data quality.** There were no duplicate loan ids. Employment length was missing on 78,516 loans, which I kept as its own group because it turned out to matter. In the full set of 1,345,350 loans, 361 had zero income and 535 had odd debt to income values such as 999, which look like placeholder codes. That is too few to matter, so I grouped them instead of deleting rows.
+3. **Keep only matured loans.** This left 673,553 loans. The reason is explained further down.
+4. **Compare segments.** For every factor I worked out the default rate and the number of loans, and hid groups that were too small to trust.
+5. **Build the scorecard.** I put each loan into a group for every factor, worked out the points from the 2007 to 2013 loans, added them up for each loan, tested the result on 2014 and 2015, and then sorted the loans into five tiers.
+6. **Prepare the tables for Power BI.** One table has a row for every loan with its score and tier. A second one holds the review tradeoff by tier, built with window functions.
+7. **Build the dashboard.** Four pages in Power BI, with DAX measures and a what if parameter for the review slider.
+
+## Key Findings
 
 Here is the safest and the riskiest group for each factor. The average is 14.81%.
 
@@ -44,7 +56,7 @@ Small business loans have the highest default rate of any purpose, but they are 
 
 I also looked at state. It runs from about 10% in DC to 18.7% in Mississippi. It is on the dashboard, but I left it out of the risk score on purpose, because location can act as a stand in for protected groups.
 
-## The risk score
+## Risk Scoring Approach
 
 I built a simple points scorecard, not a machine learning model. This is an analyst project, and I wanted every point to be something I could explain.
 
@@ -64,7 +76,7 @@ The factors overlap. Low income and a low FICO score often come together, so add
 
 To make sure the score was not just memorising the past, I worked out the points using loans from 2007 to 2013 and then tested the score on loans from 2014 and 2015. The default rate went up with the score in both periods. Loans scoring 5 to 9, for example, defaulted 20.8% of the time in the training years and 21.4% in the test years.
 
-## Which applications to review
+## Application Review Strategy
 
 Where to draw the line depends on how many applications the team can check, so the dashboard has a slider for it. This table shows what each choice covers. Each row assumes the team reviews that tier and every riskier one.
 
@@ -77,7 +89,7 @@ Where to draw the line depends on how many applications the team can check, so t
 
 I want to be clear about what the score can and cannot do. Even in the riskiest tier, about 71% of borrowers paid their loan back. The 18 highest scoring applications (a score of 30 or more) still repaid two times out of three. The score tells a team where to look first. It should not be used to reject people.
 
-## The dashboard
+## Dashboard Overview
 
 The Power BI report has four pages.
 
@@ -86,13 +98,13 @@ The Power BI report has four pages.
 3. **Loan Type and Location.** Default rate by loan purpose, loan term and state.
 4. **Review Queue.** A slider for the lowest risk score to review, how many applications and defaults that covers, and a list of the highest risk applications.
 
-![Borrower Profile](Images/02_Borrower%20Profile.png)
-![Loan Type and Location](Images/03_Loan%20Type%20and%20Location.png)
-![Review Queue](Images/04_Review%20Queue.png)
+![Borrower profile](images/02_borrower_profile.png)
+![Loan type and location](images/03_loan_type_location.png)
+![Review queue](images/04_review_queue.png)
 
 There is also a PDF copy of the report in the powerbi folder.
 
-## One decision that changed my results
+## Key Decision: Matured Loans Only
 
 When I first looked at default rate by year, 2016 and 2017 showed about 23%, which looked wrong next to 13% to 16% for the earlier years. The cause was something I had done myself. I had removed loans that were still running, because they have no final result yet. But that quietly changes the numbers.
 
@@ -115,31 +127,31 @@ I also kept two kinds of columns out on purpose. I never loaded anything that is
 
 If I carried on with this, I would compare the scorecard with a logistic regression, try weight of evidence instead of simple point differences, and measure how much the tiers drift year by year.
 
-## Files
+## Repository Structure
 
 ```
-Images/
-Power BI/loan_default_risk_dashboard.pbix
-Power BI/loan_default_risk_dashboard.pdf
-SQL/loan_default_risk.sql
 README.md
+sql/loan_default_risk.sql
+powerbi/loan_default_risk_dashboard.pbix
+powerbi/loan_default_risk_dashboard.pdf
+images/
 ```
 
 The Kaggle file is too large to include, so download it from the link above.
 
-## How to run it
+## How to Reproduce
 
 1. Download accepted_2007_to_2018Q4.csv from Kaggle.
 2. Prepare loans_filtered.csv. Keep only the rows where loan_status is Fully Paid, Charged Off or Default, and only the 24 columns listed in the LOAD DATA statement of the SQL file, in that same order (it is the order they appear in the Kaggle file). The raw file is large, so use a tool that can read it in chunks.
-3. In MySQL, run sql/loan_default_risk.sql one section at a time. Change the file path in the LOAD DATA statement, and turn on local_infile on both the server and the client. The script expects Windows line endings. On Mac or Linux, change them to `\n`.
+3. In MySQL 8 or later, run sql/loan_default_risk.sql one section at a time. Change the file path in the LOAD DATA statement, and turn on local_infile on both the server and the client. The script expects Windows line endings. On Mac or Linux, change them to `\n`.
 4. Open Power BI Desktop, connect to the loan_risk database and load loans_dashboard, tier_summary and score_points.
 
 Or skip all of that and open the PDF.
 
-## Tools
+## Tools Used
 
-MySQL and Power BI Desktop (DAX measures and a what if parameter).
+MySQL 8 and Power BI Desktop (DAX measures and a what if parameter).
 
 ## Author
 
-Built by Winkle. [GitHub](https://github.com/winklethakur) and [LinkedIn](https://www.linkedin.com/in/winkle-data-scientist)
+Built by winklethakur. [GitHub](https://github.com/winklethakur) and [LinkedIn](https://www.linkedin.com/in/winkle-data-scientist)
