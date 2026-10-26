@@ -4,7 +4,7 @@ This is a credit risk project built on the Lending Club loan data from Kaggle. I
 
 I used MySQL to clean and analyse the data and to build a risk score, and Power BI to put it all into a four page dashboard.
 
-![Overview page](images/01_overview.png)
+![Overview page](Images/01_Overview.png)
 
 ## Business Question
 
@@ -98,9 +98,9 @@ The Power BI report has four pages.
 3. **Loan Type and Location.** Default rate by loan purpose, loan term and state.
 4. **Review Queue.** A slider for the lowest risk score to review, how many applications and defaults that covers, and a list of the highest risk applications.
 
-![Borrower profile](images/02_borrower_profile.png)
-![Loan type and location](images/03_loan_type_location.png)
-![Review queue](images/04_review_queue.png)
+![Borrower Profile](Images/02_Borrower%20Profile.png)
+![Loan Type and Location](Images/03_Loan%20Type%20and%20Location.png)
+![Review Queue](Images/04_Review%20Queue.png)
 
 There is also a PDF copy of the report in the powerbi folder.
 
