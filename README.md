@@ -4,8 +4,6 @@ This is a credit risk project built on the Lending Club loan data from Kaggle. I
 
 I used MySQL to clean and analyse the data and to build a risk score, and Power BI to put it all into a four page dashboard.
 
-![Overview page](Images/01_Overview.png)
-
 ## Business Question
 
 Which customer segments have the highest loan default probability, and which applications should the credit team manually review?
@@ -91,18 +89,31 @@ I want to be clear about what the score can and cannot do. Even in the riskiest 
 
 ## Dashboard Overview
 
-The Power BI report has four pages.
+The Power BI report has four pages. A PDF copy of the report is also in the powerbi folder.
 
-1. **Overview.** Total loans, defaults and the default rate, then loans issued and default rate by year, and default rate by risk tier.
-2. **Borrower Profile.** Default rate by income, FICO score, debt to income and employment length.
-3. **Loan Type and Location.** Default rate by loan purpose, loan term and state.
-4. **Review Queue.** A slider for the lowest risk score to review, how many applications and defaults that covers, and a list of the highest risk applications.
+### Page 1: Overview
+
+Total loans, defaults and the default rate, then loans issued and default rate by year, and default rate by risk tier.
+
+![Overview page](Images/01_Overview.png)
+
+### Page 2: Borrower Profile
+
+Default rate by income, FICO score, debt to income and employment length.
 
 ![Borrower Profile](Images/02_Borrower%20Profile.png)
-![Loan Type and Location](Images/03_Loan%20Type%20and%20Location.png)
-![Review Queue](Images/04_Review%20Queue.png)
 
-There is also a PDF copy of the report in the powerbi folder.
+### Page 3: Loan Type and Location
+
+Default rate by loan purpose, loan term and state.
+
+![Loan Type and Location](Images/03_Loan%20Type%20and%20Location.png)
+
+### Page 4: Review Queue
+
+A slider for the lowest risk score to review, how many applications and defaults that covers, and a list of the highest risk applications.
+
+![Review Queue](Images/04_Review%20Queue.png)
 
 ## Key Decision: Matured Loans Only
 
